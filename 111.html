@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生日快乐动态祝福</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        /* 背景图容器 */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .background-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        .background-img.active {
+            opacity: 1;
+        }
+        /* 标题样式 */
+        .title {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-size: 36px;
+            z-index: 10;
+        }
+        /* 弹窗样式（带爱心图标） */
+       /* 弹窗样式（带爱心和笑脸图标） */
+.popup {
+    position: absolute;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    color: #333;
+    font-size: 16px;
+    max-width: 200px;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.5s ease;
+    /* 让图标和文字正确排列 */
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+/* 左上角爱心 */
+.popup::before {
+    content: "💕";
+}
+/* 右上角笑脸 */
+.popup::after {
+    content: "😍";
+    margin-left: auto; /* 推到最右侧 */
+}
+.popup.show {
+    opacity: 1;
+    transform: scale(1);
+}
+/* 弹窗背景色随机变化 */
+.popup.color1 { background: rgba(255,240,245,0.9); }
+.popup.color2 { background: rgba(240,255,240,0.9); }
+.popup.color3 { background: rgba(240,255,255,0.9); }
+.popup.color4 { background: rgba(255,250,240,0.9); }
+    </style>
+</head>
+<body>
+    <!-- 背景图容器 -->
+    <div class="background-container">
+        <div class="background-img active" style="background-image: url('cake1.png');"></div>
+        <div class="background-img" style="background-image: url('cake2.png');"></div>
+    </div>
+
+    <!-- 标题 -->
+    <div class="title">生日快乐！</div>
+
+    <script>
+        // 1. 背景图轮播
+        const bgImages = document.querySelectorAll('.background-img');
+        let currentBgIndex = 0;
+        function switchBackground() {
+            bgImages[currentBgIndex].classList.remove('active');
+            currentBgIndex = (currentBgIndex + 1) % bgImages.length;
+            bgImages[currentBgIndex].classList.add('active');
+        }
+        setInterval(switchBackground, 8000);
+
+        // 2. 弹窗逻辑（叠加到40后，新增与减少同步）
+        const blessings = [
+            "祝你生日快乐，天天开心没烦恼！",
+            "新的一岁，平安喜乐，万事顺遂～",
+            "生日快乐！愿所有美好都围绕着你",
+            "愿你每一岁都奔走在热爱里",
+            "生日快乐呀！今天要吃甜甜的蛋糕～",
+            "新岁新起点，未来皆可期！",
+            "祝你生日快乐，不止今天，而是每天",
+            "愿你被世界温柔以待，生日快乐！",
+            "暴富暴美暴顺利，生日快乐呀！",
+            "解锁新年龄，快乐永不打烊～",
+            "愿日子清透，世事温柔，生日快乐！",
+            "一岁一欢喜，年年皆如意，生日快乐！"
+        ];
+        
+        const targetMax = 40; // 目标最大数量
+        let isStable = false; // 是否进入稳定阶段（40张左右）
+
+        // 创建单个弹窗
+        function createPopup() {
+            const currentPopups = document.querySelectorAll('.popup').length;
+            // 未达到目标前，只新增不减少
+            if (!isStable) {
+                if (currentPopups < targetMax) {
+                    addNewPopup();
+                } else {
+                    isStable = true; // 达到40张后进入稳定阶段
+                }
+            } else {
+                // 稳定阶段：新增1个同时减少1个，保持总量平衡
+                addNewPopup();
+                removeOldPopup();
+            }
+        }
+
+        // 新增弹窗
+        function addNewPopup() {
+            const popup = document.createElement('div');
+            popup.textContent = blessings[Math.floor(Math.random() * blessings.length)];
+            popup.className = `popup color${Math.floor(Math.random() * 4) + 1}`;
+            
+            // 随机位置
+            const maxX = window.innerWidth - 220;
+            const maxY = window.innerHeight - 100;
+            popup.style.left = `${Math.random() * maxX}px`;
+            popup.style.top = `${Math.random() * maxY}px`;
+
+            document.body.appendChild(popup);
+            setTimeout(() => popup.classList.add('show'), 10);
+        }
+
+        // 移除最旧的弹窗
+        function removeOldPopup() {
+            const popups = document.querySelectorAll('.popup');
+            if (popups.length > 0) {
+                const oldestPopup = popups[0]; // 取第一个（最旧的）
+                oldestPopup.classList.remove('show');
+                setTimeout(() => oldestPopup.remove(), 500);
+            }
+        }
+
+        // 启动逻辑：前期快速叠加，达到40后进入稳定阶段
+        function start() {
+            // 第一阶段：快速叠加到40张（每100ms新增1个）
+            const fastInterval = setInterval(createPopup, 100);
+            // 预计10秒左右达到40张，之后切换到稳定阶段的频率
+            setTimeout(() => {
+                clearInterval(fastInterval);
+                // 稳定阶段：每500ms新增1个+减少1个（保持动态平衡）
+                setInterval(createPopup, 500);
+            }, 10000);
+        }
+
+        // 初始化启动
+        start();
+    </script>
+</body>
+</html>
